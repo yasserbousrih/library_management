@@ -1,0 +1,192 @@
+<!-- Toast Container -->
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 999999; pointer-events: none;"></div>
+
+<style>
+/* Consistent Toast Styles */
+.toast {
+  position: relative;
+  min-width: 300px;
+  max-width: 500px;
+  margin-bottom: 10px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.3s ease-out;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  pointer-events: auto;
+  z-index: 999999;
+  background: white;
+  border: 2px solid #ddd;
+  width: auto;
+  height: auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+.toast-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+.toast-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  margin-left: 12px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.toast.slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+</style>
+
+<script>
+// Global Toast Notification System
+function showToast(message, type = 'info', duration = 5000) {
+  // Create toast container if it doesn't exist
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; pointer-events: none;';
+    document.body.appendChild(container);
+  }
+  
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  // Force inline styles to ensure visibility
+  toast.style.cssText = `
+    position: relative;
+    min-width: 300px;
+    max-width: 500px;
+    margin-bottom: 10px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    pointer-events: auto;
+    z-index: 999999;
+    background: white;
+    border: 2px solid #ddd;
+    width: auto;
+    height: auto;
+    visibility: visible;
+    opacity: 1;
+  `;
+  
+  const icon = type === 'success' ? '✅' : 
+               type === 'error' ? '❌' : 
+               type === 'warning' ? '⚠️' : 'ℹ️';
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <div class="toast-content">${message}</div>
+    <button class="toast-close" onclick="removeToast(this.parentElement)">&times;</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => {
+    if (toast.parentElement) {
+      removeToast(toast);
+    }
+  }, duration);
+  
+  return toast;
+}
+
+function removeToast(toast) {
+  toast.classList.add('slide-out');
+  setTimeout(() => {
+    if (toast.parentElement) {
+      toast.parentElement.removeChild(toast);
+    }
+  }, 300);
+}
+
+// Legacy support for old toast functions
+function showToastNotify(msg) {
+  showToast(msg, 'success', 3000);
+}
+
+// Auto-test on page load (for debugging)
+document.addEventListener('DOMContentLoaded', function() {
+  // Toast system loaded
+});
+</script>

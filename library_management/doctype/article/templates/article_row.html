@@ -1,0 +1,173 @@
+<div class="article-detail-page">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                {% if image %}
+                <img src="{{ image }}" class="img-fluid" alt="{{ section_break_wvtm or name }}">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <h1>🎯 {{ section_break_wvtm or name }} 🎯</h1>
+                
+                {% if author %}
+                <p><strong>Author:</strong> {{ author }}</p>
+                {% endif %}
+                
+                {% if publisher %}
+                <p><strong>Publisher:</strong> {{ publisher }}</p>
+                {% endif %}
+                
+                {% if isbn %}
+                <p><strong>ISBN:</strong> {{ isbn }}</p>
+                {% endif %}
+                
+                <p><strong>Status:</strong> 
+                    <span class="badge {% if status == 'Available' %}badge-success{% else %}badge-warning{% endif %}">
+                        {{ status }}
+                    </span>
+                </p>
+                
+                {% if description %}
+                <div class="mt-3">
+                    <h5>Description</h5>
+                    <div>{{ description }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Debug Info -->
+                <div class="alert alert-info mt-3">
+                    <strong>🔍 Debug Info:</strong><br>
+                    User: {{ frappe.session.user }}<br>
+                    User Email: {{ frappe.get_value('User', frappe.session.user, 'email') }}<br>
+                    Library Member: {{ frappe.db.exists('Library Member', {'email': frappe.get_value('User', frappe.session.user, 'email')}) }}<br>
+                    Memberships: {{ frappe.get_all("Library Membership", filters={"library_member": frappe.db.exists('Library Member', {'email': frappe.get_value('User', frappe.session.user, 'email')})}, fields=["name", "from_date", "to_date"]) }}
+                </div>
+                
+                <!-- Rent Article Button -->
+                {% if frappe.session.user != "Guest" and status == "Available" %}
+                    {% set user_doc = frappe.get_doc("User", frappe.session.user) %}
+                    {% set library_member_name = frappe.db.exists('Library Member', {'email': user_doc.email}) %}
+                    {% set my_memberships = frappe.get_all(
+                        "Library Membership",
+                        filters={"library_member": library_member_name, "from_date": ["<=", frappe.utils.today()], "to_date": [">=", frappe.utils.today()]},
+                        fields=["name"]
+                    ) %}
+                    {% if my_memberships %}
+                        <form id="rent-article-form" method="post" action="/api/method/library_management.api.rent_article" class="mt-3">
+                            <input type="hidden" name="article" value="{{ name }}">
+                            <input type="hidden" name="csrf_token" value="{{ frappe.session.csrf_token }}">
+                            <button type="submit" class="btn btn-primary" id="rent-btn">
+                                <i class="fa fa-book"></i> 🚀 Rent this Article 🚀
+                            </button>
+                        </form>
+                        <div id="rent-message" class="mt-2"></div>
+                    {% else %}
+                        <div class="alert alert-warning mt-3">
+                            <i class="fa fa-exclamation-triangle"></i> 
+                            Active library membership required to rent articles.
+                        </div>
+                    {% endif %}
+                {% elif frappe.session.user == "Guest" %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fa fa-info-circle"></i> 
+                        Please log in to rent articles.
+                    </div>
+                {% elif status != "Available" %}
+                    <div class="alert alert-secondary mt-3">
+                        <i class="fa fa-book"></i> 
+                        This article is currently not available for rent.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Article template loaded!');
+    
+    const form = document.getElementById('rent-article-form');
+    const rentBtn = document.getElementById('rent-btn');
+    const messageDiv = document.getElementById('rent-message');
+    
+    if (form) {
+        console.log('🎯 Rent form found!');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('🎯 Form submitted!');
+            
+            // Disable button and show loading
+            rentBtn.disabled = true;
+            rentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                const formData = new FormData(form);
+                console.log('🎯 Form action:', form.action);
+                console.log('🎯 Form data:', formData);
+                
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Frappe-CSRF-Token': '{{ frappe.session.csrf_token }}'
+                    }
+                });
+                
+                console.log('🎯 Response status:', response.status);
+                const result = await response.json();
+                console.log('🎯 Response result:', result);
+                
+                if (result.message && result.message.success) {
+                    // Success - show green toast
+                    showToast('Success!', result.message.message, 'success');
+                    messageDiv.innerHTML = '<div class="alert alert-success mt-2"><i class="fa fa-check"></i> ' + result.message.message + '</div>';
+                    
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Error - show red toast
+                    const errorMsg = result.message ? result.message.message : 'Failed to rent article';
+                    console.log('🎯 Error message:', errorMsg);
+                    showToast('Error', errorMsg, 'error');
+                    messageDiv.innerHTML = '<div class="alert alert-danger mt-2"><i class="fa fa-exclamation-triangle"></i> ' + errorMsg + '</div>';
+                }
+            } catch (error) {
+                // Network error
+                console.error('🎯 Network error:', error);
+                showToast('Error', 'Network error. Please try again.', 'error');
+                messageDiv.innerHTML = '<div class="alert alert-danger mt-2"><i class="fa fa-exclamation-triangle"></i> Network error. Please try again.</div>';
+            } finally {
+                // Re-enable button
+                rentBtn.disabled = false;
+                rentBtn.innerHTML = '<i class="fa fa-book"></i> 🚀 Rent this Article 🚀';
+            }
+        });
+    } else {
+        console.log('🎯 No rent form found!');
+    }
+    
+    function showToast(title, message, type) {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            <strong>${title}:</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+});
+</script>

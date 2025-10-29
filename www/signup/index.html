@@ -1,0 +1,256 @@
+{% include "templates/includes/navbar.html" %}
+
+<!-- Toast Container -->
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<div class="container" style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #333; margin-bottom: 30px;">Sign Up</h2>
+  
+  
+  <div id="error-message" style="display: none; background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 15px;"></div>
+  
+  <div id="success-message" style="display: none; background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 15px;"></div>
+  
+  <form id="signup-form" style="margin: 0;">
+    <div style="margin-bottom: 20px;">
+      <label for="full_name" style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Full Name:</label>
+      <input type="text" id="full_name" name="full_name" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;" placeholder="Enter your name">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+      <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Email:</label>
+      <input type="email" id="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;" placeholder="Enter your email">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+      <label for="password" style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Password:</label>
+      <input type="password" id="password" name="password" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;" placeholder="Create a password">
+    </div>
+    
+    <button type="submit" id="submit-btn" style="width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-bottom: 15px;">Sign Up</button>
+  </form>
+  
+  <p style="text-align: center; margin-top: 10px; font-size: 14px;">
+    Already have an account?
+    <a href="/login" style="color: #007bff; text-decoration: none;">Login</a>
+  </p>
+</div>
+
+<style>
+/* Toast Styles */
+.toast {
+  position: relative;
+  min-width: 300px;
+  max-width: 500px;
+  margin-bottom: 10px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.3s ease-out;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+.toast-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  margin-left: 12px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.toast.slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+</style>
+
+<script>
+// Helper function to get CSRF token
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+// Toast notification system
+function showToast(message, type = 'info', duration = 5000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <div class="toast-content">${message}</div>
+    <button class="toast-close" onclick="removeToast(this.parentElement)">&times;</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => {
+    if (toast.parentElement) {
+      removeToast(toast);
+    }
+  }, duration);
+  
+  return toast;
+}
+
+function removeToast(toast) {
+  toast.classList.add('slide-out');
+  setTimeout(() => {
+    if (toast.parentElement) {
+      toast.parentElement.removeChild(toast);
+    }
+  }, 300);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('signup-form');
+  const errorMsg = document.getElementById('error-message');
+  const successMsg = document.getElementById('success-message');
+  const submitBtn = document.getElementById('submit-btn');
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+    
+    const formData = {
+      email: document.getElementById('email').value.trim(),
+      full_name: document.getElementById('full_name').value.trim(),
+      password: document.getElementById('password').value,
+      redirect_to: '/'
+    };
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing up...';
+    
+    // Use fetch API instead of frappe.call
+    console.log('🔍 DEBUG: Signup form data:', formData);
+    console.log('🔍 DEBUG: Making API call to signup');
+    
+    fetch('/api/method/library_management.api.signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Frappe-CSRF-Token': getCookie('csrf_token') || '{{ frappe.session.csrf_token }}'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      console.log('🔍 DEBUG: Signup API response status:', response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log('🔍 DEBUG: Signup API response data:', data);
+      
+      // Handle different response structures
+      let resp = {};
+      if (data.message) {
+        resp = data.message;
+      } else if (data) {
+        resp = data;
+      }
+      
+      console.log('🔍 DEBUG: Processed response:', resp);
+      
+      // Check if signup was actually successful
+      if (resp.success === true) {
+        showToast('Account created successfully! You are now logged in.', 'success', 3000);
+        form.reset();
+        
+        // Redirect after successful signup
+        setTimeout(function() {
+          window.location.href = resp.redirect_url || '/home';
+        }, 2000);
+      } else {
+        // Show error message from API
+        const errorMsg = resp.message || 'Signup failed. Please try again.';
+        console.log('🔍 DEBUG: Showing error:', errorMsg);
+        showToast(errorMsg, 'error', 6000);
+      }
+    })
+    .catch(error => {
+      showToast('An error occurred. Please try again.', 'error', 6000);
+      console.error('🔍 DEBUG: Signup error:', error);
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign Up';
+    });
+  });
+});
+</script>

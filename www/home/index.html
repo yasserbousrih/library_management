@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+  {% include "templates/includes/design-system.html" %}
+  <style>
+    /* Home page specific styles using design system */
+    .home-main { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: var(--space-16) var(--space-6);
+      margin-top: 2rem; /* Add top margin to prevent navbar overlap */
+    }
+    
+    .home-hero {
+      text-align: center;
+      margin-bottom: var(--space-16);
+      padding: var(--space-12) 0;
+      background: linear-gradient(135deg, var(--primary-50) 0%, var(--neutral-50) 100%);
+      border-radius: var(--radius-2xl);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .home-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23e2e8f0" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23e2e8f0" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23e2e8f0" opacity="0.2"/><circle cx="10" cy="60" r="0.5" fill="%23e2e8f0" opacity="0.2"/><circle cx="90" cy="40" r="0.5" fill="%23e2e8f0" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.5;
+    }
+    
+    .home-title {
+      font-size: var(--font-size-5xl);
+      font-weight: 800;
+      color: var(--neutral-900);
+      margin-bottom: var(--space-4);
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .home-subtitle {
+      font-size: var(--font-size-xl);
+      color: var(--neutral-600);
+      margin-bottom: var(--space-8);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Stats section */
+    .stats-section {
+      background: #f5f9fe;
+      border-left: 4px solid #2876ff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2.5rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #2876ff;
+      margin-bottom: 0.3rem;
+    }
+    .stat-label {
+      font-size: 0.95rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+    
+    /* Quick actions grid - individual cards */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .quick-card {
+      background: #fff;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .quick-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(40,118,255,0.1);
+      border-color: #2876ff;
+    }
+    .quick-icon {
+      font-size: 2.5rem;
+      color: #2876ff;
+      margin-bottom: 1rem;
+    }
+    .quick-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1d3557;
+      margin-bottom: 0.5rem;
+    }
+    .quick-desc {
+      font-size: 1rem;
+      color: #6c757d;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    
+    /* Custom buttons - consistent with other pages */
+    .custom-btn {
+      display: inline-block;
+      border-radius: 7px;
+      padding: 0.62rem 1.4rem;
+      font-size: 1.01rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.16s;
+    }
+    .custom-btn-primary { 
+      background: #2876ff; 
+      color: #fff; 
+      border: 1px solid #2876ff;
+    }
+    .custom-btn-primary:hover { 
+      background: #205bb8; 
+      border-color: #205bb8; 
+      transform: translateY(-1px);
+    }
+    .custom-btn-outline-primary { 
+      background: none; 
+      color: #2876ff; 
+      border: 1px solid #2876ff;
+    }
+    .custom-btn-outline-primary:hover { 
+      background: #2876ff; 
+      color: #fff;
+    }
+    
+    /* Features section - card design */
+    .features-section {
+      background: #fff;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 3rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .features-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1d3557;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .feature-icon {
+      font-size: 1.5rem;
+      color: #2876ff;
+      flex-shrink: 0;
+    }
+    .feature-text {
+      font-size: 1rem;
+      color: #495057;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .home-main { padding: 1.5rem 1rem; margin: 1rem; }
+      .home-title { font-size: 2.2rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick-actions { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+    
+    @media (max-width: 480px) {
+      .home-title { font-size: 1.8rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  {% include "templates/includes/navbar.html" %}
+{% include "templates/includes/toast.html" %}
+  
+<div class="home-main">
+    <!-- Hero Section -->
+    <div class="home-hero">
+      <h1 class="home-title">Library Management System</h1>
+      <p class="home-subtitle">
+        Discover, explore, and manage your library experience with our comprehensive digital platform.<br>
+        Browse articles, track your rentals, and access exclusive member features.
+      </p>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">1,250+</div>
+          <div class="stat-label">Available Articles</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Active Members</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">15,000+</div>
+          <div class="stat-label">Books Borrowed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">98%</div>
+          <div class="stat-label">Satisfaction Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <!-- Browse Articles -->
+      <div class="quick-card">
+        <i class="bi bi-journal-bookmark-fill quick-icon"></i>
+        <div class="quick-title">Browse Articles</div>
+        <div class="quick-desc">Explore our extensive collection of articles, books, and digital resources. Search by author, publisher, or category.</div>
+        <a href="/articles-page" class="custom-btn custom-btn-primary">
+          <i class="bi bi-search"></i> Browse Collection
+        </a>
+      </div>
+
+      <!-- My Articles -->
+      <div class="quick-card">
+        <i class="bi bi-folder2-open quick-icon"></i>
+        <div class="quick-title">My Articles</div>
+        <div class="quick-desc">View and manage your borrowed articles. Track due dates, renew items, and manage your reading list.</div>
+        <a href="/my-articles" class="custom-btn custom-btn-primary">
+          <i class="bi bi-list-check"></i> My Articles
+        </a>
+      </div>
+
+      <!-- Membership -->
+      <div class="quick-card">
+        <i class="bi bi-person-badge-fill quick-icon"></i>
+        <div class="quick-title">Membership</div>
+        <div class="quick-desc">Manage your library membership, view account details, and access exclusive member benefits and features.</div>
+        <a href="/membership" class="custom-btn custom-btn-primary">
+          <i class="bi bi-person-gear"></i> My Membership
+        </a>
+      </div>
+
+      <!-- Member Dashboard -->
+      <div class="quick-card">
+        <i class="bi bi-speedometer2 quick-icon"></i>
+        <div class="quick-title">Dashboard</div>
+        <div class="quick-desc">Access your personalized dashboard with quick stats, recent activity, and personalized recommendations.</div>
+        <a href="/my-articles" class="custom-btn custom-btn-outline-primary">
+          <i class="bi bi-graph-up"></i> View Dashboard
+        </a>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <h2 class="features-title">Why Choose Our Library?</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <i class="bi bi-clock feature-icon"></i>
+          <div class="feature-text">24/7 Digital Access to thousands of articles and books</div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-shield-check feature-icon"></i>
+          <div class="feature-text">Secure and reliable platform with data protection</div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-people feature-icon"></i>
+          <div class="feature-text">Community-driven with expert recommendations</div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-phone feature-icon"></i>
+          <div class="feature-text">Mobile-friendly design for reading anywhere</div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-bookmark feature-icon"></i>
+          <div class="feature-text">Personal reading lists and favorites</div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-chat-dots feature-icon"></i>
+          <div class="feature-text">Support team available to help you</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

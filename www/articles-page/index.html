@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articles</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .articles-page {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: #222;
+      letter-spacing: -1px;
+    }
+    .article-summary {
+      font-size: 1.1rem;
+      color: #6c757d;
+    }
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+    .article-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      border: 1px solid #e3e5ea;
+      border-radius: 1rem;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 0;
+    }
+    .article-card:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    
+    .article-card:hover .card-img-top {
+      transform: scale(1.05);
+    }
+    
+    .card-img-top-holder {
+      overflow: hidden;
+    }
+    .card-body {
+      flex: 1 1 auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-title {
+      font-size: 1.38rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+    }
+    .card-subtitle {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #6c757d;
+      font-weight: 400;
+    }
+    .card-text {
+      font-size: 0.99rem;
+      color: #495057;
+      margin-bottom: 1rem;
+      line-height: 1.53;
+    }
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.32em 1.0em;
+      font-size: 0.97em;
+      font-weight: 600;
+      border-radius: 1em;
+      text-align: center;
+      color: #fff;
+    }
+    .badge-success {
+      background-color: #2876ff;
+    }
+    .badge-secondary {
+      background-color: #adb5bd;
+    }
+    .btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      border: 1px solid transparent;
+      padding: 0.46rem 1.1rem;
+      font-size: 0.99rem;
+      line-height: 1.5;
+      border-radius: 0.38rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 0.2rem;
+    }
+    .btn-primary {
+      color: #fff;
+      background-color: #2876ff;
+      border-color: #2876ff;
+    }
+    .btn-primary:hover {
+      background-color: #205bb8;
+      border-color: #205bb8;
+    }
+    .btn-outline-secondary {
+      color: #6c757d;
+      border-color: #d3d8e0;
+      background-color: transparent;
+    }
+    .btn-outline-secondary:hover {
+      color: #fff;
+      background-color: #6c757d;
+      border-color: #6c757d;
+    }
+    .btn-sm {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.95rem;
+      border-radius: 0.32rem;
+    }
+    .alert {
+      position: relative;
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid transparent;
+      border-radius: 0.38rem;
+      font-size: 1rem;
+    }
+    .alert-info {
+      color: #1c7382;
+      background-color: #e6f6fa;
+      border-color: #bee5eb;
+    }
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    .spinner-border {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      vertical-align: text-bottom;
+      border: 0.25em solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spinner-border 0.75s linear infinite;
+    }
+    @keyframes spinner-border { to { transform: rotate(360deg); } }
+    .text-center { text-align: center; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .text-muted { color: #6c757d !important; }
+    .mt-3 { margin-top: 1rem; }
+    .ml-2 { margin-left: 0.5rem; }
+    @media (max-width: 768px) {
+      .articles-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .articles-page { padding: 1rem; }
+      .page-header h1 { font-size: 2rem; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .articles-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1025px) {
+      .articles-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  {% include "templates/includes/navbar.html" %}
+{% include "templates/includes/toast.html" %}
+  
+  <div class="articles-page">
+    <header class="page-header">
+      <h1>Articles</h1>
+      <p class="article-summary">Browse our collection of articles.</p>
+    </header>
+    <section class="articles-list" aria-label="Articles">
+      <div id="loading-spinner" class="text-center" style="display: none;">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p>Loading articles...</p>
+      </div>
+
+      <div id="articles-container" class="articles-grid">
+        <!-- Articles will be loaded here dynamically -->
+      </div>
+
+      <div id="no-articles" class="alert alert-info" style="display: none;">
+        <p>No articles found. <a href="/app/article/new">Create your first article</a></p>
+      </div>
+
+      <div id="error-message" class="alert alert-danger" style="display: none;">
+        <p>Error loading articles. Please try again later.</p>
+      </div>
+    </section>
+  </div>
+  <script>
+    // Helper function to get CSRF token
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() { 
+      console.log('🔍 DEBUG: Articles page loaded, starting loadArticles()');
+      loadArticles(); 
+    });
+    
+    function loadArticles() {
+      console.log('🔍 DEBUG: Starting loadArticles()');
+      document.getElementById('loading-spinner').style.display = 'block';
+      document.getElementById('articles-container').style.display = 'none';
+      document.getElementById('no-articles').style.display = 'none';
+      document.getElementById('error-message').style.display = 'none';
+      
+      console.log('🔍 DEBUG: Making API call to get_articles');
+      
+      // Use fetch API instead of frappe.call
+      fetch('/api/method/library_management.api.get_articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Frappe-CSRF-Token': getCookie('csrf_token') || '{{ frappe.session.csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('🔍 DEBUG: API response received:', data);
+        document.getElementById('loading-spinner').style.display = 'none';
+        
+        if (data.message && data.message.success) {
+          const articles = data.message.articles;
+          console.log('🔍 DEBUG: Articles data:', articles);
+          if (articles && articles.length > 0) {
+            displayArticles(articles);
+          } else {
+            showNoArticles();
+          }
+        } else {
+          console.error('🔍 DEBUG: API error:', data.message);
+          showError('Error loading articles: ' + (data.message ? data.message.message : 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('🔍 DEBUG: Network error:', error);
+        document.getElementById('loading-spinner').style.display = 'none';
+        showError('Network error loading articles. Please check your connection.');
+      });
+    }
+    function displayArticles(articles) {
+      const container = document.getElementById('articles-container');
+      container.innerHTML = '';
+      container.style.display = 'grid';
+      articles.forEach(article => {
+        const articleCard = createArticleCard(article);
+        container.appendChild(articleCard);
+      });
+    }
+    function createArticleCard(article) {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'card article-card';
+
+      // Add image if available
+      if (article.image) {
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'card-img-top-holder';
+        imgDiv.style.cssText = 'height: 200px; overflow: hidden; position: relative;';
+        
+        const img = document.createElement('img');
+        img.src = article.image;
+        img.alt = (article.title || article.name) + ' - Article image';
+        img.className = 'card-img-top';
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;';
+        img.onerror = function() {
+          this.style.display = 'none';
+          const placeholder = document.createElement('div');
+          placeholder.style.cssText = 'width: 100%; height: 100%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;';
+          placeholder.innerHTML = '<i class="bi bi-image" style="font-size: 2rem;"></i>';
+          imgDiv.appendChild(placeholder);
+        };
+        
+        imgDiv.appendChild(img);
+        cardDiv.appendChild(imgDiv);
+      } else {
+        // Add placeholder for articles without images
+        const placeholderDiv = document.createElement('div');
+        placeholderDiv.className = 'card-img-top-holder';
+        placeholderDiv.style.cssText = 'height: 200px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;';
+        placeholderDiv.innerHTML = '<i class="bi bi-book" style="font-size: 3rem;"></i>';
+        cardDiv.appendChild(placeholderDiv);
+      }
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      // Title
+      const title = document.createElement('h3');
+      title.className = 'card-title';
+      title.textContent = article.title || article.name;
+      cardBody.appendChild(title);
+
+      // Author
+      if (article.author) {
+        const author = document.createElement('p');
+        author.className = 'card-subtitle text-muted';
+        author.textContent = 'By ' + article.author;
+        cardBody.appendChild(author);
+      }
+
+      // Publisher
+      if (article.publisher) {
+        const publisher = document.createElement('p');
+        publisher.className = 'card-subtitle text-muted';
+        publisher.textContent = 'Published by ' + article.publisher;
+        cardBody.appendChild(publisher);
+      }
+
+      // Description
+      if (article.description) {
+        const description = document.createElement('p');
+        description.className = 'card-text';
+        description.textContent = article.description_preview || article.description;
+        cardBody.appendChild(description);
+      }
+
+      // Meta information
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'article-meta';
+
+      // Status badge
+      if (article.status) {
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'badge badge-' + (article.status === 'Available' ? 'success' : 'secondary');
+        statusBadge.textContent = article.status;
+        metaDiv.appendChild(statusBadge);
+      }
+
+      // ISBN
+      if (article.isbn) {
+        const isbn = document.createElement('small');
+        isbn.className = 'text-muted';
+        isbn.textContent = 'ISBN: ' + article.isbn;
+        metaDiv.appendChild(isbn);
+      }
+
+      // Creation date
+      const date = document.createElement('small');
+      date.className = 'text-muted';
+      date.textContent = article.formatted_date;
+      metaDiv.appendChild(date);
+
+      cardBody.appendChild(metaDiv);
+
+      // Action buttons
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'mt-3';
+
+      // View Details button
+      const viewBtn = document.createElement('a');
+      viewBtn.href = '/article-detail?article_name=' + article.name;
+      viewBtn.className = 'btn btn-sm btn-primary';
+      viewBtn.textContent = 'View Details';
+      actionsDiv.appendChild(viewBtn);
+
+      // Rent Article button (only for logged-in users)
+      // Check if user is logged in by looking for session data in the page
+      const isLoggedIn = document.cookie.includes('sid=') || document.cookie.includes('user_id=');
+      if (isLoggedIn) {
+        const rentBtn = document.createElement('a');
+        rentBtn.href = '/article-detail?article_name=' + article.name;
+        rentBtn.className = 'btn btn-sm btn-outline-secondary ml-2';
+        rentBtn.textContent = 'Rent Article';
+        actionsDiv.appendChild(rentBtn);
+      }
+
+      cardBody.appendChild(actionsDiv);
+      cardDiv.appendChild(cardBody);
+
+      return cardDiv;
+    }
+    function showNoArticles() {
+      document.getElementById('no-articles').style.display = 'block';
+      document.getElementById('articles-container').style.display = 'none';
+    }
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.querySelector('p').textContent = message;
+      errorDiv.style.display = 'block';
+      document.getElementById('articles-container').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

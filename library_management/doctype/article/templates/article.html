@@ -1,0 +1,76 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            {% if image %}
+            <img src="{{ image }}" class="img-fluid" alt="{{ section_break_wvtm or name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ section_break_wvtm or name }}</h1>
+            
+            {% if author %}
+            <p><strong>Author:</strong> {{ author }}</p>
+            {% endif %}
+            
+            {% if publisher %}
+            <p><strong>Publisher:</strong> {{ publisher }}</p>
+            {% endif %}
+            
+            {% if isbn %}
+            <p><strong>ISBN:</strong> {{ isbn }}</p>
+            {% endif %}
+            
+            <p><strong>Status:</strong> 
+                <span class="badge {% if status == 'Available' %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ status }}
+                </span>
+            </p>
+            
+            {% if description %}
+            <div class="mt-3">
+                <h5>Description</h5>
+                <div>{{ description }}</div>
+            </div>
+            {% endif %}
+            
+            <!-- Rent Article Button -->
+            {% if frappe.session.user != "Guest" and status == "Available" %}
+                {% set user_doc = frappe.get_doc("User", frappe.session.user) %}
+                {% set library_member_name = frappe.db.exists('Library Member', {'email': user_doc.email}) %}
+                {% set my_memberships = frappe.get_all(
+                    "Library Membership",
+                    filters={"library_member": library_member_name, "from_date": ["<=", frappe.utils.today()], "to_date": [">=", frappe.utils.today()]},
+                    fields=["name"]
+                ) %}
+                {% if my_memberships %}
+                    <form method="post" action="/api/method/library_management.api.rent_article" class="mt-3">
+                        <input type="hidden" name="article" value="{{ name }}">
+                        <input type="hidden" name="csrf_token" value="{{ frappe.session.csrf_token }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-book"></i> Rent this Article
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="fa fa-exclamation-triangle"></i> 
+                        Active library membership required to rent articles.
+                    </div>
+                {% endif %}
+            {% elif frappe.session.user == "Guest" %}
+                <div class="alert alert-info mt-3">
+                    <i class="fa fa-info-circle"></i> 
+                    Please log in to rent articles.
+                </div>
+            {% elif status != "Available" %}
+                <div class="alert alert-secondary mt-3">
+                    <i class="fa fa-book"></i> 
+                    This article is currently not available for rent.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

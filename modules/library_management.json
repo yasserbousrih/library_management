@@ -1,0 +1,10 @@
+{
+  "app_name": "library_management",
+  "app_title": "Library Management",
+  "app_publisher": "Library Management Team",
+  "app_description": "Library Management System",
+  "app_icon": "octicon octicon-book",
+  "app_color": "blue",
+  "app_email": "admin@library.com",
+  "app_license": "MIT"
+}
